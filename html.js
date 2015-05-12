@@ -45,7 +45,7 @@ function render(lexed, filename, template, config, cb) {
 
   // generate the table of contents.
   // this mutates the lexed contents in-place.
-  buildToc(lexed, filename, function(er, toc) {
+  buildToc(lexed, filename, config, function(er, toc) {
     if (er) return cb(er);
 
     template = template.replace(/__FILENAME__/g, filename);
@@ -153,13 +153,13 @@ function getSection(lexed) {
 }
 
 
-function buildToc(lexed, filename, cb) {
+function buildToc(lexed, filename, config, cb) {
   var indent = 0;
   var toc = [];
   var depth = 0;
   lexed.forEach(function(tok) {
     if (tok.type !== 'heading') return;
-    if (tok.depth - depth > 1) {
+    if (tok.depth - depth > 1 && !config.sloppy) {
       return cb(new Error('Inappropriate heading level\n' +
                           JSON.stringify(tok)));
     }
